@@ -1,0 +1,18 @@
+table: person
+column_families:
+  - family: d
+    columns:
+      - key: 1##a
+        rows:
+          name: a
+          age: 10
+      - key: 2##b
+        rows:
+          name: b
+          abe: 20
+  - family: e
+    columns:
+      - key: 2##b
+        rows:
+          name: b
+          age: 20
