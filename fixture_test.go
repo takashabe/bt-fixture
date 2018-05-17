@@ -37,6 +37,9 @@ func TestExec(t *testing.T) {
 		f, err := NewFixture("test-project", "test-instance")
 		assert.NoError(t, err)
 
+		err = f.clearTable(c.input.Table)
+		assert.NoError(t, err)
+
 		err = f.exec(c.input)
 		assert.NoError(t, err)
 	}
