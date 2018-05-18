@@ -21,7 +21,7 @@ func TestExec(t *testing.T) {
 						Columns: []Columns{
 							Columns{
 								Key: "1",
-								Rows: map[string]string{
+								Rows: map[string]interface{}{
 									"name": "foo",
 									"age":  "1",
 								},

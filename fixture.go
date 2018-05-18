@@ -32,14 +32,16 @@ type QueryModelWithYaml struct {
 	ColumnFamilies []ColumnFamilies `yaml:"column_families"`
 }
 
+// ColumnFamilies represent mapping ColumnFamilies with the fixture
 type ColumnFamilies struct {
 	Family  string    `yaml:"family"`
 	Columns []Columns `yaml:"columns"`
 }
 
+// Columns represent mapping Columns with the fixture
 type Columns struct {
-	Key  string            `yaml:"key"`
-	Rows map[string]string `yaml:"rows"`
+	Key  string                 `yaml:"key"`
+	Rows map[string]interface{} `yaml:"rows"`
 }
 
 // NewFixture returns initialized Fixture
@@ -125,7 +127,7 @@ func (f *Fixture) exec(model QueryModelWithYaml) error {
 
 			for q, v := range cs.Rows {
 				mut := bigtable.NewMutation()
-				mut.Set(fam, q, bigtable.Time(now), []byte(v))
+				mut.Set(fam, q, bigtable.Time(now), v.([]byte))
 
 				muts = append(muts, mut)
 				keys = append(keys, cs.Key)
@@ -143,6 +145,17 @@ func (f *Fixture) exec(model QueryModelWithYaml) error {
 		}
 	}
 	return nil
+}
+
+func valueToByte(v interface{}) []byte {
+	switch t := v.(type) {
+	case int, int8, int16, int32, int64:
+		return []byte(t.(int64))
+	case float32, float64:
+		return []byte(t.(float64))
+	default:
+		[]byte(v.(string))
+	}
 }
 
 func getFileData(path string) ([]byte, error) {
