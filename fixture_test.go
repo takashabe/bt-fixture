@@ -50,14 +50,10 @@ func TestLoad(t *testing.T) {
 		input  string
 		expect error
 	}{
-		{
-			"testdata/test.yml",
-			nil,
-		},
-		{
-			"not_exists.yml",
-			ErrFailReadFile,
-		},
+		{"testdata/test.yml", nil},
+		{"testdata/invalid.ext", ErrUnknownFileExt},
+		{"testdata/invalid.yaml", ErrInvalidFixture},
+		{"not_exists.yml", ErrFailReadFile},
 	}
 	for _, c := range cases {
 		f, err := NewFixture("test-project", "test-instance")
