@@ -2,7 +2,9 @@ package fixture
 
 import (
 	"context"
+	"encoding/binary"
 	"io/ioutil"
+	"math"
 	"path/filepath"
 	"time"
 
@@ -127,7 +129,7 @@ func (f *Fixture) exec(model QueryModelWithYaml) error {
 
 			for q, v := range cs.Rows {
 				mut := bigtable.NewMutation()
-				mut.Set(fam, q, bigtable.Time(now), v.([]byte))
+				mut.Set(fam, q, bigtable.Time(now), valueToByte(v))
 
 				muts = append(muts, mut)
 				keys = append(keys, cs.Key)
@@ -148,13 +150,31 @@ func (f *Fixture) exec(model QueryModelWithYaml) error {
 }
 
 func valueToByte(v interface{}) []byte {
+	b := make([]byte, 8)
 	switch t := v.(type) {
-	case int, int8, int16, int32, int64:
-		return []byte(t.(int64))
-	case float32, float64:
-		return []byte(t.(float64))
+	case int:
+		binary.BigEndian.PutUint64(b, uint64(int64(t)))
+		return b
+	case int8:
+		binary.BigEndian.PutUint64(b, uint64(int64(t)))
+		return b
+	case int16:
+		binary.BigEndian.PutUint64(b, uint64(int64(t)))
+		return b
+	case int32:
+		binary.BigEndian.PutUint64(b, uint64(int64(t)))
+		return b
+	case int64:
+		binary.BigEndian.PutUint64(b, uint64(t))
+		return b
+	case float32:
+		binary.BigEndian.PutUint64(b, math.Float64bits(float64(t)))
+		return b
+	case float64:
+		binary.BigEndian.PutUint64(b, math.Float64bits(t))
+		return b
 	default:
-		[]byte(v.(string))
+		return []byte(t.(string))
 	}
 }
 
