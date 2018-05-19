@@ -15,11 +15,9 @@ import (
 
 // error variables
 var (
-	ErrFailRegisterDriver = errors.New("failed to register driver")
-	ErrFailReadFile       = errors.New("failed to read file")
-	ErrInvalidFixture     = errors.New("invalid fixture file format")
-	ErrNotFoundDriver     = errors.New("unknown driver(forgotten import?)")
-	ErrUnknownFileExt     = errors.New("unknown file ext")
+	ErrFailReadFile   = errors.New("failed to read file")
+	ErrInvalidFixture = errors.New("invalid fixture file format")
+	ErrUnknownFileExt = errors.New("unknown file ext")
 )
 
 // Fixture provide fixture methods
