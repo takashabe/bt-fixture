@@ -40,8 +40,32 @@ type ColumnFamilies struct {
 
 // Columns represent mapping Columns with the fixture
 type Columns struct {
-	Key  string                 `yaml:"key"`
-	Rows map[string]interface{} `yaml:"rows"`
+	Key     string                 `yaml:"key"`
+	Rows    map[string]interface{} `yaml:"rows"`
+	Version Version                `yaml:"version"`
+}
+
+// Version represent specific timestamp
+type Version struct {
+	time.Time
+}
+
+var versionFormat = "2006-01-02 15:04:05 -07:00"
+
+// UnmarshalYAML implemented Unmarshaler of the Version
+func (v *Version) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	err := unmarshal(&s)
+	if err != nil {
+		return err
+	}
+
+	t, err := time.Parse(versionFormat, s)
+	if err != nil {
+		return err
+	}
+	v.Time = t
+	return nil
 }
 
 // NewFixture returns initialized Fixture
@@ -126,8 +150,15 @@ func (f *Fixture) exec(model QueryModelWithYaml) error {
 			)
 
 			for q, v := range cs.Rows {
+				var t time.Time
+				if cs.Version.IsZero() {
+					t = now
+				} else {
+					t = cs.Version.Time
+				}
+
 				mut := bigtable.NewMutation()
-				mut.Set(fam, q, bigtable.Time(now), valueToByte(v))
+				mut.Set(fam, q, bigtable.Time(t), valueToByte(v))
 
 				muts = append(muts, mut)
 				keys = append(keys, cs.Key)
