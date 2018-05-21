@@ -2,12 +2,14 @@ package fixture
 
 import (
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestExec(t *testing.T) {
+	now := time.Now()
 	cases := []struct {
 		input  QueryModelWithYaml
 		expect error
@@ -25,6 +27,7 @@ func TestExec(t *testing.T) {
 									"name": "foo",
 									"age":  "1",
 								},
+								Version: Version{now},
 							},
 						},
 					},
@@ -41,7 +44,7 @@ func TestExec(t *testing.T) {
 		assert.NoError(t, err)
 
 		err = f.exec(c.input)
-		assert.NoError(t, err)
+		assert.Equal(t, c.expect, errors.Cause(err))
 	}
 }
 
@@ -51,6 +54,7 @@ func TestLoad(t *testing.T) {
 		expect error
 	}{
 		{"testdata/test.yml", nil},
+		{"testdata/version.yaml", nil},
 		{"testdata/invalid.ext", ErrUnknownFileExt},
 		{"testdata/invalid.yaml", ErrInvalidFixture},
 		{"not_exists.yml", ErrFailReadFile},
