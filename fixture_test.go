@@ -18,10 +18,10 @@ func TestExec(t *testing.T) {
 			QueryModelWithYaml{
 				Table: "test",
 				ColumnFamilies: []ColumnFamilies{
-					ColumnFamilies{
+					{
 						Family: "d",
 						Columns: []Columns{
-							Columns{
+							{
 								Key: "1",
 								Rows: map[string]interface{}{
 									"name": "foo",
