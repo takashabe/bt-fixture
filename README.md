@@ -12,7 +12,8 @@ Management the fixtures of the database for testing.
 
 - Load the Cloud Bigtable columns fixture by a yaml file
 - Before cleanup a table
-
+- Types
+    - int and float types in a fixture convert to big-endian 8-byte values
 
 ## Usage
 
