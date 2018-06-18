@@ -3,10 +3,10 @@ column_families:
   - family: d
     columns:
       - key: 1
-        version: 2018-05-19 00:00:00 +09:00
+        version: 2018-05-19 00:00:00 +00:00
         rows:
           name: a
       - key: 1
-        version: 2018-05-19 01:00:00 +09:00
+        version: 2018-05-19 01:00:00 +00:00
         rows:
           name: b
