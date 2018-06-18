@@ -45,13 +45,13 @@ column_families:
           name: a
           age: 10
           height: 140.0
-        version: 2018-05-19 00:00:00 +09:00
+        version: 2018-05-19 00:00:00 +00:00
       - key: 1##a
         rows:
           name: a
           abe: 11
           height: 140.0
-        version: 2019-05-19 00:00:00 +09:00
+        version: 2019-05-19 00:00:00 +00:00
   - family: e
     columns:
       - key: 2##b
@@ -59,7 +59,7 @@ column_families:
           name: b
           age: 20
           height: 180.0
-        version: 2018-05-19 00:00:00 +09:00
+        version: 2018-05-19 00:00:00 +00:00
 ```
 
 - Example output:
