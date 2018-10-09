@@ -37,7 +37,7 @@ func TestExec(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		f, err := NewFixture("test-project", "test-instance")
+		f, err := New("test-project", "test-instance")
 		assert.NoError(t, err)
 
 		err = f.clearTable(c.input.Table)
@@ -60,7 +60,7 @@ func TestLoad(t *testing.T) {
 		{"not_exists.yml", ErrFailReadFile},
 	}
 	for _, c := range cases {
-		f, err := NewFixture("test-project", "test-instance")
+		f, err := New("test-project", "test-instance")
 		assert.NoError(t, err)
 
 		err = f.Load(c.input)
