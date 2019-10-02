@@ -24,6 +24,7 @@ var (
 type Fixture struct {
 	client      *bigtable.Client
 	adminClient *bigtable.AdminClient
+	marshaler   Marshaler
 }
 
 // QueryModelWithYaml represent fixture yaml file mapper
@@ -69,13 +70,13 @@ func (v *Version) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 // New returns initialized Fixture
-func New(project, instance string) (*Fixture, error) {
-	return NewFixture(project, instance)
+func New(project, instance string, opts ...Option) (*Fixture, error) {
+	return NewFixture(project, instance, opts...)
 }
 
 // NewFixture returns initialized Fixture
 // Deprecated. Instead use the New()
-func NewFixture(project, instance string) (*Fixture, error) {
+func NewFixture(project, instance string, opts ...Option) (*Fixture, error) {
 	ctx := context.Background()
 	client, err := bigtable.NewClient(ctx, project, instance)
 	if err != nil {
@@ -85,10 +86,26 @@ func NewFixture(project, instance string) (*Fixture, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Fixture{
+	f := &Fixture{
 		client:      client,
 		adminClient: adminClient,
-	}, nil
+		marshaler:   MarshalBigEndian,
+	}
+
+	for _, opt := range opts {
+		opt(f)
+	}
+	return f, nil
+}
+
+// Option represents functionl-option-pattern
+type Option func(*Fixture)
+
+// WithMarshaler setting the Marshaler
+func WithMarshaler(m Marshaler) Option {
+	return func(f *Fixture) {
+		f.marshaler = m
+	}
 }
 
 // Load load .yml script
@@ -163,8 +180,13 @@ func (f *Fixture) exec(model QueryModelWithYaml) error {
 					t = cs.Version.Time
 				}
 
+				b, err := f.marshaler(v)
+				if err != nil {
+					return err
+				}
+
 				mut := bigtable.NewMutation()
-				mut.Set(fam, q, bigtable.Time(t), valueToByte(v))
+				mut.Set(fam, q, bigtable.Time(t), b)
 
 				muts = append(muts, mut)
 				keys = append(keys, cs.Key)
@@ -184,39 +206,37 @@ func (f *Fixture) exec(model QueryModelWithYaml) error {
 	return nil
 }
 
-func valueToByte(v interface{}) []byte {
-	b := make([]byte, 8)
-	switch t := v.(type) {
-	case int:
-		binary.BigEndian.PutUint64(b, uint64(int64(t)))
-		return b
-	case int8:
-		binary.BigEndian.PutUint64(b, uint64(int64(t)))
-		return b
-	case int16:
-		binary.BigEndian.PutUint64(b, uint64(int64(t)))
-		return b
-	case int32:
-		binary.BigEndian.PutUint64(b, uint64(int64(t)))
-		return b
-	case int64:
-		binary.BigEndian.PutUint64(b, uint64(t))
-		return b
-	case float32:
-		binary.BigEndian.PutUint64(b, math.Float64bits(float64(t)))
-		return b
-	case float64:
-		binary.BigEndian.PutUint64(b, math.Float64bits(t))
-		return b
-	default:
-		return []byte(t.(string))
-	}
-}
-
 func getFileData(path string) ([]byte, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrap(ErrFailReadFile, err.Error())
 	}
 	return data, nil
+}
+
+// Marshaler provides endocing value
+type Marshaler func(v interface{}) ([]byte, error)
+
+// MarshalBigEndian returns the BigEndian byte encoding of v
+func MarshalBigEndian(v interface{}) ([]byte, error) {
+	b := make([]byte, 8)
+	switch t := v.(type) {
+	case int:
+		binary.BigEndian.PutUint64(b, uint64(int64(t)))
+	case int8:
+		binary.BigEndian.PutUint64(b, uint64(int64(t)))
+	case int16:
+		binary.BigEndian.PutUint64(b, uint64(int64(t)))
+	case int32:
+		binary.BigEndian.PutUint64(b, uint64(int64(t)))
+	case int64:
+		binary.BigEndian.PutUint64(b, uint64(t))
+	case float32:
+		binary.BigEndian.PutUint64(b, math.Float64bits(float64(t)))
+	case float64:
+		binary.BigEndian.PutUint64(b, math.Float64bits(t))
+	default:
+		return []byte(t.(string)), nil
+	}
+	return b, nil
 }
