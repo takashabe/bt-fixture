@@ -6,6 +6,6 @@ import (
 
 func main() {
 	// omit the error handling
-	f, _ := fixture.NewFixture("test-project", "test-instance")
+	f, _ := fixture.New("test-project", "test-instance")
 	f.Load("testdata/fixture.yaml")
 }
