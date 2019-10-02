@@ -4,10 +4,7 @@ SUBPACKAGES := $(shell go list ./...)
 
 ##### Development
 
-.PHONY: deps test vet lint
-
-deps: ## Setup dependencies package
-	dep ensure
+.PHONY: test vet lint
 
 test: ## Run go test
 	go test -v -p 1 $(SUBPACKAGES)
