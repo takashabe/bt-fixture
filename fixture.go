@@ -71,12 +71,6 @@ func (v *Version) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // New returns initialized Fixture
 func New(project, instance string, opts ...Option) (*Fixture, error) {
-	return NewFixture(project, instance, opts...)
-}
-
-// NewFixture returns initialized Fixture
-// Deprecated. Instead use the New()
-func NewFixture(project, instance string, opts ...Option) (*Fixture, error) {
 	ctx := context.Background()
 	client, err := bigtable.NewClient(ctx, project, instance)
 	if err != nil {
